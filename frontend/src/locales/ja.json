@@ -145,6 +145,7 @@
     "typing": "AIが入力中...",
     "placeholders": {
       "typeMessage": "メッセージを入力... (Enterで送信、Shift+Enterで改行)",
+      "typeMessageDemo": "メッセージを入力... (デモモード - Google Gemini搭載)",
       "conversationTitle": "会話タイトルを入力"
     },
     "actions": {

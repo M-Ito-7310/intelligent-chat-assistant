@@ -149,6 +149,7 @@
     "typing": "AI is typing...",
     "placeholders": {
       "typeMessage": "Type your message... (Enter to send, Shift+Enter for new line)",
+      "typeMessageDemo": "Type your message... (Demo mode - powered by Google Gemini)",
       "conversationTitle": "Enter conversation title"
     },
     "actions": {
