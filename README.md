@@ -24,7 +24,7 @@ An intelligent chatbot service with RAG (Retrieval-Augmented Generation) capabil
 - 📤 **Export Conversations**: Export chat history as JSON
 - 👨‍💼 **Admin Dashboard**: System monitoring and user management
 - ⚡ **Performance Optimized**: Database query optimization and lazy loading
-- 🎮 **Demo Mode**: Try the chatbot without API keys
+- 🎮 **Demo Mode**: Try the chatbot without backend API (powered by Google Gemini)
 
 ## Technology Stack
 
@@ -46,6 +46,7 @@ An intelligent chatbot service with RAG (Retrieval-Augmented Generation) capabil
 
 ### AI/ML
 - **LLM Provider**: OpenAI API / Hugging Face
+- **Demo AI**: Google Gemini API (for demo mode)
 - **Embeddings**: OpenAI text-embedding-ada-002
 - **Document Processing**: PDF.js, Langchain
 
@@ -65,6 +66,7 @@ ai-chatbot/
 │   │   └── utils/          # Utility functions
 │   └── tests/              # Backend tests
 ├── frontend/               # Vue.js frontend app
+│   ├── src/services/       # API services (backend + Gemini)
 ├── docs/                   # Project documentation
 ├── scripts/                # Development scripts
 └── ROADMAP.md             # Development roadmap
@@ -102,6 +104,21 @@ ai-chatbot/
    npm run dev
    ```
 
+### Demo Mode
+
+The application includes a fully functional demo mode that works without backend API:
+
+- **Access**: Use demo credentials (demo-access-token) or admin credentials (admin-access-token)
+- **AI Integration**: Powered by Google Gemini API for realistic chat experience
+- **Local Storage**: Conversations and messages stored locally in browser
+- **Full Features**: Complete chat functionality with conversation history and title generation
+- **UI Indicators**: Clear visual indicators when running in demo mode
+
+To try demo mode:
+1. Run the frontend: `cd frontend && npm run dev`
+2. Login with demo credentials or visit demo routes
+3. Start chatting - no backend setup required!
+
 ### Environment Variables
 
 Create a `.env` file in the backend directory:
@@ -113,6 +130,9 @@ DATABASE_URL=postgresql://username:password@localhost:5432/ai_chatbot
 # AI Services
 OPENAI_API_KEY=your_openai_key
 HUGGINGFACE_TOKEN=your_hf_token
+
+# Demo Mode AI (Frontend)
+GOOGLE_GEMINI_API_KEY=your_gemini_key
 
 # Vector Database
 PINECONE_API_KEY=your_pinecone_key
