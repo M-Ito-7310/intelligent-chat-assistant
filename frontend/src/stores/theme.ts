@@ -26,10 +26,8 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function toggleTheme() {
-    if (theme.value === 'light') {
+    if (currentTheme.value === 'light') {
       setTheme('dark')
-    } else if (theme.value === 'dark') {
-      setTheme('system')
     } else {
       setTheme('light')
     }
