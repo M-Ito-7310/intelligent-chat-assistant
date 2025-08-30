@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 
 import logger from './utils/logger.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
+import { initializeRedis, closeRedis } from './config/redis.js';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
@@ -89,6 +90,15 @@ server.listen(PORT, async () => {
   logger.info(`AI Chatbot Backend Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
+  // Initialize Redis
+  try {
+    await initializeRedis();
+    logger.info('Redis initialized successfully');
+  } catch (error) {
+    logger.warn('Redis initialization failed, using fallback mode:', error.message);
+    // Continue running with fallback implementations
+  }
+  
   // Initialize query optimizer
   try {
     await queryOptimizer.initialize();
@@ -97,6 +107,25 @@ server.listen(PORT, async () => {
     logger.error('Failed to initialize query optimizer:', error);
     // Continue running without optimizations
   }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  await closeRedis();
+  server.close(() => {
+    logger.info('Process terminated');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  await closeRedis();
+  server.close(() => {
+    logger.info('Process terminated');
+    process.exit(0);
+  });
 });
 
 export { io };

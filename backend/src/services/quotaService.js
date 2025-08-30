@@ -1,5 +1,6 @@
 import pool from '../config/database.js';
 import { cacheService } from './cacheService.js';
+import { redisRateLimitService } from './redisRateLimitService.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -36,10 +37,38 @@ class QuotaService {
     };
 
     this.rateLimits = {
-      messages_per_minute: 10,
-      messages_per_hour: 100,
-      api_calls_per_minute: 20,
-      api_calls_per_hour: 500
+      // Per-user rate limits
+      user: {
+        messages_per_minute: 10,
+        messages_per_hour: 100,
+        api_calls_per_minute: 20,
+        api_calls_per_hour: 500,
+        document_uploads_per_hour: 5,
+        search_requests_per_minute: 15
+      },
+      
+      // Global rate limits (across all users)
+      global: {
+        messages_per_second: 50,
+        api_calls_per_second: 100,
+        heavy_operations_per_minute: 10
+      },
+      
+      // Rate limit configurations for different algorithms
+      algorithms: {
+        sliding_window: {
+          window_sizes: {
+            minute: 60 * 1000,
+            hour: 60 * 60 * 1000,
+            day: 24 * 60 * 60 * 1000
+          }
+        },
+        token_bucket: {
+          message: { capacity: 10, refillRate: 0.2 }, // 10 tokens, 0.2 per second
+          api_call: { capacity: 20, refillRate: 0.5 }, // 20 tokens, 0.5 per second
+          heavy_operation: { capacity: 3, refillRate: 0.05 } // 3 tokens, 0.05 per second
+        }
+      }
     };
   }
 
@@ -274,73 +303,289 @@ class QuotaService {
   }
 
   /**
-   * Rate limiting check
+   * Enhanced rate limiting check with multiple algorithms
    */
-  async checkRateLimit(userId, operation) {
+  async checkRateLimit(userId, operation, algorithm = 'sliding_window') {
     if (userId === 'demo-user-id') {
-      return { allowed: true, retryAfter: null };
+      return { allowed: true, retryAfter: null, remaining: 999 };
     }
 
     try {
-      const cacheKey = `rate_limit:${userId}:${operation}`;
-      const now = Date.now();
-      const minute = Math.floor(now / (60 * 1000));
-      const hour = Math.floor(now / (60 * 60 * 1000));
-
-      // For now, we'll use a simple in-memory approach
-      // In production, you'd want to use Redis for this
-
-      let limit;
-      let timeWindow;
+      const tier = await this.getUserTier(userId);
+      const rateLimits = this.getRateLimits(tier, operation);
       
-      switch (operation) {
-        case 'message':
-          limit = this.rateLimits.messages_per_minute;
-          timeWindow = minute;
+      if (!rateLimits) {
+        return { allowed: true, retryAfter: null, remaining: null };
+      }
+
+      // Check global limits first
+      await this.checkGlobalRateLimit(operation);
+
+      let result;
+      switch (algorithm) {
+        case 'token_bucket':
+          result = await this.checkTokenBucketRateLimit(userId, operation, rateLimits);
           break;
-        case 'api_call':
-          limit = this.rateLimits.api_calls_per_minute;
-          timeWindow = minute;
-          break;
+        case 'sliding_window':
         default:
-          return { allowed: true, retryAfter: null };
+          result = await this.checkSlidingWindowRateLimit(userId, operation, rateLimits);
+          break;
       }
 
-      // Simple rate limiting logic
-      // In a real implementation, you'd use sliding window or token bucket algorithms
-      const requests = await this.getRateLimitCount(userId, operation, timeWindow);
-      
-      if (requests >= limit) {
-        return { 
-          allowed: false, 
-          retryAfter: 60 - (now % (60 * 1000)) / 1000 // Seconds until next minute
-        };
+      if (!result.allowed) {
+        logger.warn(`Rate limit exceeded for user ${userId}, operation: ${operation}`, {
+          userId,
+          operation,
+          algorithm,
+          limit: rateLimits,
+          current: result.count || result.tokens
+        });
       }
 
-      await this.incrementRateLimitCount(userId, operation, timeWindow);
-      return { allowed: true, retryAfter: null };
+      return result;
 
     } catch (error) {
       logger.error('Rate limit check error:', error);
-      return { allowed: true, retryAfter: null };
+      return { allowed: true, retryAfter: null, remaining: null, error: error.message };
     }
   }
 
   /**
-   * Get rate limit count (simplified implementation)
+   * Check sliding window rate limits
    */
-  async getRateLimitCount(userId, operation, timeWindow) {
-    // This is a simplified implementation
-    // In production, use Redis with expiring keys
-    return 0;
+  async checkSlidingWindowRateLimit(userId, operation, rateLimits) {
+    const checks = [];
+    
+    // Check per-minute limits
+    if (rateLimits.per_minute) {
+      checks.push(
+        redisRateLimitService.checkSlidingWindow(
+          userId, 
+          `${operation}_minute`, 
+          rateLimits.per_minute,
+          this.rateLimits.algorithms.sliding_window.window_sizes.minute
+        )
+      );
+    }
+
+    // Check per-hour limits
+    if (rateLimits.per_hour) {
+      checks.push(
+        redisRateLimitService.checkSlidingWindow(
+          userId,
+          `${operation}_hour`,
+          rateLimits.per_hour,
+          this.rateLimits.algorithms.sliding_window.window_sizes.hour
+        )
+      );
+    }
+
+    const results = await Promise.all(checks);
+    
+    // If any limit is exceeded, deny the request
+    for (const result of results) {
+      if (!result.allowed) {
+        return {
+          allowed: false,
+          retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
+          remaining: result.remaining,
+          resetTime: result.resetTime
+        };
+      }
+    }
+
+    // Return the most restrictive remaining count
+    const minRemaining = Math.min(...results.map(r => r.remaining));
+    return {
+      allowed: true,
+      retryAfter: null,
+      remaining: minRemaining
+    };
   }
 
   /**
-   * Increment rate limit count
+   * Check token bucket rate limits
    */
-  async incrementRateLimitCount(userId, operation, timeWindow) {
-    // Simplified implementation
-    // In production, use Redis INCR with expiration
+  async checkTokenBucketRateLimit(userId, operation, rateLimits) {
+    const config = this.rateLimits.algorithms.token_bucket[operation];
+    if (!config) {
+      return { allowed: true, retryAfter: null, remaining: null };
+    }
+
+    const result = await redisRateLimitService.checkTokenBucket(
+      userId,
+      operation,
+      config.capacity,
+      config.refillRate,
+      1 // consume 1 token
+    );
+
+    return {
+      allowed: result.allowed,
+      retryAfter: result.allowed ? null : Math.ceil((result.refillTime - Date.now()) / 1000),
+      remaining: result.tokens,
+      capacity: result.capacity
+    };
+  }
+
+  /**
+   * Check global rate limits
+   */
+  async checkGlobalRateLimit(operation) {
+    const globalLimits = this.rateLimits.global;
+    
+    if (globalLimits.messages_per_second && operation === 'message') {
+      const result = await redisRateLimitService.checkGlobalLimit(
+        'message',
+        globalLimits.messages_per_second,
+        1000 // 1 second
+      );
+      
+      if (!result.allowed) {
+        throw new Error('Global message rate limit exceeded');
+      }
+    }
+
+    if (globalLimits.api_calls_per_second && operation === 'api_call') {
+      const result = await redisRateLimitService.checkGlobalLimit(
+        'api_call',
+        globalLimits.api_calls_per_second,
+        1000 // 1 second
+      );
+      
+      if (!result.allowed) {
+        throw new Error('Global API rate limit exceeded');
+      }
+    }
+  }
+
+  /**
+   * Get rate limits for user tier and operation
+   */
+  getRateLimits(tier, operation) {
+    const baseLimits = this.rateLimits.user;
+    
+    // Tier multipliers
+    const multipliers = {
+      free: 1,
+      pro: 5,
+      enterprise: 10
+    };
+    
+    const multiplier = multipliers[tier] || 1;
+    
+    switch (operation) {
+      case 'message':
+        return {
+          per_minute: Math.floor(baseLimits.messages_per_minute * multiplier),
+          per_hour: Math.floor(baseLimits.messages_per_hour * multiplier)
+        };
+      case 'api_call':
+        return {
+          per_minute: Math.floor(baseLimits.api_calls_per_minute * multiplier),
+          per_hour: Math.floor(baseLimits.api_calls_per_hour * multiplier)
+        };
+      case 'document_upload':
+        return {
+          per_hour: Math.floor(baseLimits.document_uploads_per_hour * multiplier)
+        };
+      case 'search_request':
+        return {
+          per_minute: Math.floor(baseLimits.search_requests_per_minute * multiplier)
+        };
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Get current rate limit status for user
+   */
+  async getRateLimitStatus(userId, operation) {
+    if (userId === 'demo-user-id') {
+      return {
+        status: 'unlimited',
+        remaining: 999,
+        resetTime: null
+      };
+    }
+
+    try {
+      return await redisRateLimitService.getRateLimitStatus(userId, operation);
+    } catch (error) {
+      logger.error('Get rate limit status error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Reset rate limits for user
+   */
+  async resetUserRateLimit(userId, operation = null) {
+    if (userId === 'demo-user-id') {
+      return true;
+    }
+
+    try {
+      if (operation) {
+        return await redisRateLimitService.resetRateLimit(userId, operation);
+      } else {
+        // Reset all rate limits for user
+        const operations = ['message', 'api_call', 'document_upload', 'search_request'];
+        const results = await Promise.all(
+          operations.map(op => redisRateLimitService.resetRateLimit(userId, op))
+        );
+        return results.every(result => result);
+      }
+    } catch (error) {
+      logger.error('Reset rate limit error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get comprehensive rate limit metrics
+   */
+  async getRateLimitMetrics(userId) {
+    if (userId === 'demo-user-id') {
+      return {
+        user: 'demo',
+        operations: {
+          message: { current: 5, limit: 999, remaining: 994 },
+          api_call: { current: 2, limit: 999, remaining: 997 }
+        }
+      };
+    }
+
+    try {
+      const tier = await this.getUserTier(userId);
+      const operations = ['message', 'api_call', 'document_upload', 'search_request'];
+      const metrics = {};
+
+      for (const operation of operations) {
+        const limits = this.getRateLimits(tier, operation);
+        const status = await this.getRateLimitStatus(userId, operation);
+        
+        if (limits && status) {
+          metrics[operation] = {
+            limits,
+            current: status.minute?.count || 0,
+            remaining: limits.per_minute - (status.minute?.count || 0),
+            resetTime: status.minute?.resetTime
+          };
+        }
+      }
+
+      return {
+        user: userId,
+        tier,
+        operations: metrics,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('Get rate limit metrics error:', error);
+      return null;
+    }
   }
 
   /**
