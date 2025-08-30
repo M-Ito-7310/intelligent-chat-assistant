@@ -41,8 +41,8 @@ export const useDocumentsStore = defineStore('documents', () => {
     
     try {
       const response = await documentsApi.getDocuments()
-      documents.value = response.data.documents
-      processingStatus.value = response.data.processing
+      documents.value = response.data!?.documents || []
+      processingStatus.value = response.data!?.processing || { total: 0, processed: 0, pending: 0 }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch documents'
       console.error('Error fetching documents:', err)
@@ -62,13 +62,13 @@ export const useDocumentsStore = defineStore('documents', () => {
       const response = await documentsApi.uploadDocument(formData)
       
       // Add new document to the list
-      documents.value.unshift(response.data.document)
+      documents.value.unshift(response.data!.document)
       
       // Update processing status
       processingStatus.value.total += 1
       processingStatus.value.pending += 1
 
-      return response.data.document
+      return response.data!.document
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to upload document'
       console.error('Error uploading document:', err)
@@ -106,7 +106,7 @@ export const useDocumentsStore = defineStore('documents', () => {
   async function getDocument(documentId: string) {
     try {
       const response = await documentsApi.getDocument(documentId)
-      return response.data.document
+      return response.data!.document
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to get document'
       console.error('Error getting document:', err)
@@ -117,7 +117,7 @@ export const useDocumentsStore = defineStore('documents', () => {
   async function getDocumentChunks(documentId: string) {
     try {
       const response = await documentsApi.getDocumentChunks(documentId)
-      return response.data.chunks
+      return response.data!.chunks
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to get document chunks'
       console.error('Error getting document chunks:', err)
@@ -134,8 +134,8 @@ export const useDocumentsStore = defineStore('documents', () => {
 
     try {
       const response = await documentsApi.searchDocuments(query, options)
-      searchResults.value = response.data.results
-      return response.data.results
+      searchResults.value = response.data!.results
+      return response.data!.results
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to search documents'
       console.error('Error searching documents:', err)
@@ -168,7 +168,7 @@ export const useDocumentsStore = defineStore('documents', () => {
   async function refreshProcessingStatus() {
     try {
       const response = await documentsApi.getProcessingStatus()
-      processingStatus.value = response.data.status
+      processingStatus.value = response.data!.status
     } catch (err) {
       console.error('Error refreshing processing status:', err)
     }

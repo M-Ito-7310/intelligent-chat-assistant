@@ -5,7 +5,12 @@
       "Bash(docker-compose:*)",
       "Bash(npm install:*)",
       "WebFetch(domain:localhost)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

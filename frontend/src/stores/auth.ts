@@ -146,7 +146,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Try to get user profile
       try {
         await getProfile()
-        console.log('Auth initialized successfully:', user.value)
+        // Auth initialized successfully
       } catch (error) {
         console.error('Failed to restore user profile:', error)
         // If profile fetch fails, clear tokens

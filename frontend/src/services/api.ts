@@ -125,7 +125,7 @@ export const createEventSource = (url: string, options: {
   const eventSource = new EventSource(fullUrl)
 
   eventSource.onopen = (event) => {
-    console.log('SSE connection opened')
+    // SSE connection opened - using production logging
     options.onOpen?.(event)
   }
 
