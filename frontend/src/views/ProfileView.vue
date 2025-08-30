@@ -301,6 +301,9 @@
                 <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ $t('auth.profile.preferences.language') }}
                 </label>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  {{ $t('auth.profile.preferences.languageDescription') }}
+                </p>
                 <select
                   id="language"
                   v-model="preferences.language"
@@ -308,9 +311,6 @@
                 >
                   <option value="en">{{ $t('auth.profile.languages.en') }}</option>
                   <option value="ja">{{ $t('auth.profile.languages.ja') }}</option>
-                  <option value="es">{{ $t('auth.profile.languages.es') }}</option>
-                  <option value="fr">{{ $t('auth.profile.languages.fr') }}</option>
-                  <option value="de">{{ $t('auth.profile.languages.de') }}</option>
                 </select>
               </div>
 
@@ -473,6 +473,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { setLocale, type LocaleCode } from '../i18n'
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import { 
@@ -492,7 +493,7 @@ import {
 } from 'lucide-vue-next'
 
 // Stores
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const router = useRouter()
@@ -604,12 +605,17 @@ onMounted(async () => {
   
   // Initialize preferences
   preferences.value.theme = themeStore.theme
+  // Load saved default language preference (independent of current session language)
+  const savedDefaultLanguage = localStorage.getItem('defaultLanguage') || 'en'
+  preferences.value.language = savedDefaultLanguage
 })
 
 // Watch for theme changes
 watch(() => preferences.value.theme, (newTheme) => {
   themeStore.setTheme(newTheme)
 })
+
+// No immediate language change - apply only when saving preferences
 
 // Update profile
 async function updateProfile() {
@@ -665,13 +671,22 @@ async function savePreferences() {
   isSavingPreferences.value = true
   
   try {
+    // Apply language change when saving
+    if (preferences.value.language !== locale.value) {
+      setLocale(preferences.value.language as LocaleCode)
+    }
+    
+    // Save preferences
     // Note: This would need to be implemented in the backend
     // await api.post('/user/preferences', preferences.value)
     
-    showSuccessMessage('Preferences saved successfully')
+    // Store language preference locally for future logins
+    localStorage.setItem('defaultLanguage', preferences.value.language)
+    
+    showSuccessMessage(t('auth.profile.messages.preferencesSaved'))
     
   } catch (error) {
-    showErrorMessage('Failed to save preferences')
+    showErrorMessage(t('auth.profile.messages.preferencesError'))
   } finally {
     isSavingPreferences.value = false
   }

@@ -93,7 +93,8 @@
       "preferences": {
         "title": "設定",
         "theme": "テーマ設定",
-        "language": "言語",
+        "language": "デフォルト言語",
+        "languageDescription": "ログイン時に適用されるデフォルト言語（保存時に言語が切り替わります）",
         "notifications": "通知",
         "emailNotifications": "メール通知",
         "pushNotifications": "プッシュ通知",
@@ -127,10 +128,11 @@
       },
       "languages": {
         "en": "英語",
-        "ja": "日本語",
-        "es": "スペイン語",
-        "fr": "フランス語",
-        "de": "ドイツ語"
+        "ja": "日本語"
+      },
+      "messages": {
+        "preferencesSaved": "設定を保存しました",
+        "preferencesError": "設定の保存に失敗しました"
       }
     }
   },

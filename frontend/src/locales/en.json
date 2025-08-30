@@ -93,7 +93,8 @@
       "preferences": {
         "title": "Preferences",
         "theme": "Theme Preference",
-        "language": "Language",
+        "language": "Default Language",
+        "languageDescription": "Default language applied when you log in (changes when saved)",
         "notifications": "Notifications",
         "emailNotifications": "Email notifications",
         "pushNotifications": "Push notifications",
@@ -127,10 +128,11 @@
       },
       "languages": {
         "en": "English",
-        "ja": "Japanese",
-        "es": "Spanish",
-        "fr": "French",
-        "de": "German"
+        "ja": "Japanese"
+      },
+      "messages": {
+        "preferencesSaved": "Preferences saved successfully",
+        "preferencesError": "Failed to save preferences"
       },
       "changePassword": "Change Password",
       "currentPassword": "Current Password",

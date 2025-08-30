@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User, AuthTokens } from '../types/auth'
 import { authApi } from '../services/authApi'
+import { setLocale, type LocaleCode } from '../i18n'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -31,6 +32,12 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('accessToken', tokens.value.accessToken)
       localStorage.setItem('refreshToken', tokens.value.refreshToken)
       
+      // Apply default language preference after successful login
+      const defaultLanguage = localStorage.getItem('defaultLanguage')
+      if (defaultLanguage) {
+        setLocale(defaultLanguage as LocaleCode)
+      }
+      
       return response.data.user
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Login failed'
@@ -54,6 +61,12 @@ export const useAuthStore = defineStore('auth', () => {
       // Store tokens in localStorage
       localStorage.setItem('accessToken', tokens.value.accessToken)
       localStorage.setItem('refreshToken', tokens.value.refreshToken)
+      
+      // Apply default language preference after successful registration
+      const defaultLanguage = localStorage.getItem('defaultLanguage')
+      if (defaultLanguage) {
+        setLocale(defaultLanguage as LocaleCode)
+      }
       
       return response.data.user
     } catch (err) {
@@ -80,6 +93,9 @@ export const useAuthStore = defineStore('auth', () => {
       // Clear localStorage
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
+      
+      // Reset language to default (Japanese) to clear session language
+      setLocale('ja')
     }
   }
 

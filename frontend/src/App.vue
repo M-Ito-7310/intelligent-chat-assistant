@@ -134,10 +134,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { setLocale, type LocaleCode } from './i18n'
 import { useAuthStore } from './stores/auth'
 import { useThemeStore } from './stores/theme'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
-import type { LocaleCode } from './i18n'
 import { 
   MessageSquare, 
   MessageCircle, 
@@ -152,7 +152,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 
@@ -176,6 +176,14 @@ onMounted(async () => {
   try {
     await authStore.initializeAuth()
     console.log('Authentication restored')
+    
+    // Apply default language preference if user is authenticated
+    if (authStore.isAuthenticated) {
+      const defaultLanguage = localStorage.getItem('defaultLanguage')
+      if (defaultLanguage && defaultLanguage !== locale.value) {
+        setLocale(defaultLanguage as LocaleCode)
+      }
+    }
   } catch (error) {
     console.error('Failed to initialize auth:', error)
   }
