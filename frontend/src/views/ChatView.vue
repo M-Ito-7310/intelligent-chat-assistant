@@ -42,9 +42,15 @@
         <!-- Chat Header -->
         <div class="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-              {{ currentConversation?.title || 'AI Chat' }}
-            </h1>
+            <div class="flex items-center space-x-3">
+              <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                {{ currentConversation?.title || 'AI Chat' }}
+              </h1>
+              <span v-if="isDemo" 
+                    class="px-3 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full border border-blue-200 dark:border-blue-700">
+                🤖 Demo Mode
+              </span>
+            </div>
             <div class="flex items-center space-x-2">
               <button @click="exportConversation"
                       :disabled="!currentConversation || messages.length === 0"
@@ -150,7 +156,7 @@
                 v-model="newMessage"
                 @keydown.enter.exact.prevent="sendMessage"
                 @keydown.enter.shift.exact="newMessage += '\n'"
-:placeholder="$t('chat.placeholders.typeMessage')"
+                :placeholder="isDemo ? 'Type your message... (Demo mode - powered by Google Gemini)' : $t('chat.placeholders.typeMessage')"
                 rows="1"
                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 :disabled="isTyping"
@@ -178,6 +184,7 @@ import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
 import { MessageCircle, Plus, User, Bot, Send, Trash2, Download, Share } from 'lucide-vue-next'
 import { apiClient } from '../services/api'
+import { geminiApi, type GeminiMessage } from '../services/geminiApi'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 
@@ -195,6 +202,43 @@ const newMessage = ref('')
 const isTyping = ref(false)
 const messagesContainer = ref<HTMLElement>()
 const messageInput = ref<HTMLTextAreaElement>()
+
+// Demo mode detection
+const isDemo = computed(() => {
+  const token = localStorage.getItem('accessToken')
+  return token === 'demo-access-token' || token === 'admin-access-token'
+})
+
+// Demo storage keys
+const DEMO_CONVERSATIONS_KEY = 'demo_conversations'
+const DEMO_MESSAGES_KEY = 'demo_messages_'
+
+// Demo data management
+const loadDemoConversations = () => {
+  try {
+    const stored = localStorage.getItem(DEMO_CONVERSATIONS_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+const saveDemoConversations = (convs: any[]) => {
+  localStorage.setItem(DEMO_CONVERSATIONS_KEY, JSON.stringify(convs))
+}
+
+const loadDemoMessages = (conversationId: string) => {
+  try {
+    const stored = localStorage.getItem(DEMO_MESSAGES_KEY + conversationId)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+const saveDemoMessages = (conversationId: string, msgs: any[]) => {
+  localStorage.setItem(DEMO_MESSAGES_KEY + conversationId, JSON.stringify(msgs))
+}
 
 // Computed
 const validConversations = computed(() => {
@@ -220,13 +264,41 @@ onMounted(async () => {
     return
   }
   
-  await loadConversations()
+  if (isDemo.value) {
+    loadDemoData()
+  } else {
+    await loadConversations()
+  }
   
   // Auto-resize textarea
   if (messageInput.value) {
     messageInput.value.addEventListener('input', autoResize)
   }
 })
+
+// Load demo data
+const loadDemoData = () => {
+  conversations.value = loadDemoConversations()
+  
+  // Create a default conversation if none exists
+  if (conversations.value.length === 0) {
+    const defaultConv = {
+      id: 'demo-conv-1',
+      title: t('chat.newConversation'),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: 'demo-user'
+    }
+    conversations.value = [defaultConv]
+    saveDemoConversations(conversations.value)
+  }
+  
+  // Load messages for current conversation
+  if (conversations.value.length > 0) {
+    const firstConv = conversations.value[0]
+    selectConversation(firstConv)
+  }
+}
 
 // Auto-resize textarea function
 function autoResize() {
@@ -262,11 +334,21 @@ async function loadConversations() {
 async function selectConversation(conversation: any) {
   currentConversationId.value = conversation.id
   currentConversation.value = conversation
-  await loadMessages(conversation.id)
+  
+  if (isDemo.value) {
+    messages.value = loadDemoMessages(conversation.id)
+  } else {
+    await loadMessages(conversation.id)
+  }
 }
 
 // Load messages for conversation
 async function loadMessages(conversationId: string) {
+  if (isDemo.value) {
+    messages.value = loadDemoMessages(conversationId)
+    return
+  }
+  
   try {
     const response = await apiClient.get(`/chat/conversations/${conversationId}`)
     messages.value = response.data.data?.messages || []
@@ -278,6 +360,21 @@ async function loadMessages(conversationId: string) {
 
 // Create new conversation
 async function createNewConversation() {
+  if (isDemo.value) {
+    const newConv = {
+      id: 'demo-conv-' + Date.now(),
+      title: t('chat.newConversation'),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: 'demo-user'
+    }
+    
+    conversations.value.unshift(newConv)
+    saveDemoConversations(conversations.value)
+    await selectConversation(newConv)
+    return
+  }
+
   try {
     const response = await apiClient.post('/chat/conversations', {
       title: t('chat.newConversation')
@@ -322,6 +419,80 @@ async function sendMessage() {
     messageInput.value.style.height = 'auto'
   }
   
+  if (isDemo.value) {
+    await handleDemoMessage(message, userMessage)
+  } else {
+    await handleRealMessage(message, userMessage)
+  }
+}
+
+// Handle demo message with Gemini API
+async function handleDemoMessage(message: string, userMessage: any) {
+  try {
+    // Convert messages to Gemini format
+    const geminiMessages: GeminiMessage[] = messages.value
+      .filter(msg => msg.role !== 'assistant' || msg.content) // Filter out empty messages
+      .map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+      }))
+    
+    // Generate AI response using Gemini
+    const aiResponse = await geminiApi.generateResponse(geminiMessages)
+    
+    // Add AI response
+    const aiMessage = {
+      id: 'ai-' + Date.now().toString(),
+      content: aiResponse,
+      role: 'assistant',
+      created_at: new Date().toISOString(),
+      sources: []
+    }
+    
+    messages.value.push(aiMessage)
+    
+    // Save messages to local storage
+    saveDemoMessages(currentConversationId.value!, messages.value)
+    
+    // Update conversation title if it's the first message
+    if (messages.value.length === 2) { // User + AI message
+      try {
+        const title = await geminiApi.generateConversationTitle(message)
+        if (currentConversation.value) {
+          currentConversation.value.title = title
+          const convIndex = conversations.value.findIndex(c => c.id === currentConversationId.value)
+          if (convIndex !== -1) {
+            conversations.value[convIndex].title = title
+            saveDemoConversations(conversations.value)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to generate conversation title:', error)
+      }
+    }
+    
+  } catch (error) {
+    console.error('Failed to get AI response:', error)
+    
+    // Add error message
+    const errorMessage = {
+      id: 'error-' + Date.now().toString(),
+      content: t('chat.errors.aiResponse'),
+      role: 'assistant',
+      created_at: new Date().toISOString(),
+      sources: []
+    }
+    messages.value.push(errorMessage)
+    saveDemoMessages(currentConversationId.value!, messages.value)
+  } finally {
+    isTyping.value = false
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+// Handle real API message
+async function handleRealMessage(message: string, userMessage: any) {
   try {
     const response = await apiClient.post('/chat/message', {
       message,
@@ -360,12 +531,14 @@ async function sendMessage() {
     // Add error message
     messages.value.push({
       id: Date.now().toString(),
-      content: 'Sorry, I encountered an error processing your message. Please try again.',
+      content: t('chat.errors.sendMessage'),
       role: 'assistant',
       created_at: new Date().toISOString()
     })
   } finally {
     isTyping.value = false
+    await nextTick()
+    scrollToBottom()
   }
 }
 
