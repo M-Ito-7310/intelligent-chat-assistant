@@ -548,24 +548,50 @@ async function clearConversation() {
   
   if (!confirm('Are you sure you want to delete this conversation?')) return
   
-  try {
-    await apiClient.delete(`/chat/conversations/${currentConversationId.value}`)
+  if (isDemo.value) {
+    // Demo mode: delete from localStorage
+    const deletedId = currentConversationId.value
     
-    // Remove from list
-    conversations.value = conversations.value.filter(c => c.id !== currentConversationId.value)
+    // Remove from conversations list
+    conversations.value = conversations.value.filter(c => c.id !== deletedId)
+    saveDemoConversations(conversations.value)
+    
+    // Remove messages for this conversation
+    localStorage.removeItem(DEMO_MESSAGES_KEY + deletedId)
     
     // Clear current conversation
     currentConversationId.value = null
     currentConversation.value = null
     messages.value = []
     
-    // Select first available conversation
+    // Select first remaining conversation or create new one
     if (conversations.value.length > 0) {
       await selectConversation(conversations.value[0])
+    } else {
+      // Create a new conversation if none left
+      await createNewConversation()
     }
-    
-  } catch (error) {
-    console.error('Failed to delete conversation:', error)
+  } else {
+    // Production mode: API call
+    try {
+      await apiClient.delete(`/chat/conversations/${currentConversationId.value}`)
+      
+      // Remove from list
+      conversations.value = conversations.value.filter(c => c.id !== currentConversationId.value)
+      
+      // Clear current conversation
+      currentConversationId.value = null
+      currentConversation.value = null
+      messages.value = []
+      
+      // Select first available conversation
+      if (conversations.value.length > 0) {
+        await selectConversation(conversations.value[0])
+      }
+      
+    } catch (error) {
+      console.error('Failed to delete conversation:', error)
+    }
   }
 }
 
