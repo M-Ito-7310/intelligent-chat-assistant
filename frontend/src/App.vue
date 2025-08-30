@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Navigation Header -->
-    <nav v-if="showNavigation || true" class="bg-white dark:bg-gray-800 shadow">
+    <nav class="bg-white dark:bg-gray-800 shadow">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <!-- Logo and Brand -->
@@ -16,23 +16,26 @@
 
           <!-- Navigation Links -->
           <div class="flex items-center space-x-4">
-            <router-link
-              to="/chat"
-              class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              :class="{ 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white': $route.path === '/chat' }"
-            >
-              <MessageCircle class="w-4 h-4 mr-2" />
-              {{ $t('navigation.chat') }}
-            </router-link>
-            
-            <router-link
-              to="/documents"
-              class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              :class="{ 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white': $route.path === '/documents' }"
-            >
-              <FileText class="w-4 h-4 mr-2" />
-              {{ $t('navigation.documents') }}
-            </router-link>
+            <!-- Authenticated Navigation Links -->
+            <template v-if="authStore.isAuthenticated">
+              <router-link
+                to="/chat"
+                class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                :class="{ 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white': $route.path === '/chat' }"
+              >
+                <MessageCircle class="w-4 h-4 mr-2" />
+                {{ $t('navigation.chat') }}
+              </router-link>
+              
+              <router-link
+                to="/documents"
+                class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                :class="{ 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white': $route.path === '/documents' }"
+              >
+                <FileText class="w-4 h-4 mr-2" />
+                {{ $t('navigation.documents') }}
+              </router-link>
+            </template>
 
             <!-- Language Switcher -->
             <LanguageSwitcher :compact="true" @language-changed="onLanguageChanged" />
@@ -47,8 +50,8 @@
               <Moon v-else class="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </button>
 
-            <!-- User Menu -->
-            <div class="relative">
+            <!-- Authenticated User Menu -->
+            <div v-if="authStore.isAuthenticated" class="relative">
               <button
                 @click="showUserMenu = !showUserMenu"
                 class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -88,15 +91,6 @@
                   {{ $t('navigation.admin') }}
                 </router-link>
                 
-                <button
-                  @click="toggleTheme"
-                  class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Sun v-if="themeStore.isDark" class="w-4 h-4 mr-2" />
-                  <Moon v-else class="w-4 h-4 mr-2" />
-                  {{ themeStore.isDark ? 'Light Mode' : 'Dark Mode' }}
-                </button>
-                
                 <div class="border-t border-gray-200 dark:border-gray-700">
                   <button
                     @click="handleLogout"
@@ -108,6 +102,24 @@
                 </div>
               </div>
             </div>
+
+            <!-- Login Button for Non-authenticated Users -->
+            <template v-else>
+              <router-link
+                to="/login"
+                class="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                <User class="w-4 h-4 mr-2" />
+                {{ $t('common.login') }}
+              </router-link>
+              
+              <router-link
+                to="/register"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                {{ $t('common.register') }}
+              </router-link>
+            </template>
           </div>
         </div>
       </div>
@@ -150,10 +162,6 @@ const showUserMenu = ref(false)
 // Computed
 const isDark = computed(() => themeStore.isDark)
 
-const showNavigation = computed(() => {
-  return authStore.isAuthenticated && !['/', '/login', '/register'].includes(route.path)
-})
-
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -183,7 +191,6 @@ onMounted(async () => {
 // Methods
 function toggleTheme() {
   themeStore.toggleTheme()
-  showUserMenu.value = false
 }
 
 function onLanguageChanged(locale: LocaleCode) {
