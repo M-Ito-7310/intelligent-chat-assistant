@@ -1,27 +1,25 @@
-export default {
-  preset: 'default',
+module.exports = {
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
-  testMatch: [
-    '**/tests/**/*.test.js',
-    '**/tests/**/*.spec.js'
-  ],
+  coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'src/**/*.js',
-    '!src/index.js',
-    '!src/config/**',
-    '!**/node_modules/**'
+    '!src/**/*.test.js',
+    '!src/**/*.spec.js',
+    '!src/server.js',
   ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  transform: {},
-  moduleFileExtensions: ['js', 'json'],
-  testTimeout: 30000,
-  verbose: true
-};
+  testMatch: [
+    '**/__tests__/**/*.js',
+    '**/?(*.)+(spec|test).js',
+  ],
+  verbose: true,
+  testTimeout: 10000,
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.js'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+}

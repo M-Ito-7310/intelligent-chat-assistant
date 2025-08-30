@@ -1,93 +1,49 @@
-import { vi } from 'vitest'
 import { config } from '@vue/test-utils'
+import { vi } from 'vitest'
 
-// Mock Vue I18n
-vi.mock('vue-i18n', async (importOriginal) => {
-  const actual = await importOriginal() as any
-  return {
-    ...actual,
-    useI18n: () => ({
-      t: vi.fn((key: string) => key),
-      locale: { value: 'en' },
-      availableLocales: ['en', 'ja']
-    }),
-    createI18n: vi.fn(() => ({
-      global: {
-        t: vi.fn((key: string) => key),
-        locale: 'en',
-        availableLocales: ['en', 'ja']
-      }
-    }))
-  }
-})
-
-// Mock Vue Router
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn()
-  }),
-  useRoute: () => ({
-    path: '/',
-    params: {},
-    query: {}
-  }),
-  createRouter: vi.fn(),
-  createWebHistory: vi.fn()
-}))
-
-// Mock Axios
-vi.mock('axios', () => ({
-  default: {
-    create: vi.fn(() => ({
-      defaults: { headers: { common: {} } },
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() }
-      },
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn()
-    }))
-  }
-}))
-
-// Setup global mocks
-const mockT = vi.fn((key: string) => key)
+// Mock i18n
 config.global.mocks = {
-  $t: mockT,
-  $tc: mockT
+  $t: (key: string) => key,
+  $i18n: {
+    locale: 'en',
+    availableLocales: ['en', 'ja'],
+  },
 }
 
 // Mock localStorage
-Object.defineProperty(window, 'localStorage', {
-  value: {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-  },
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}
+global.localStorage = localStorageMock as any
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
 })
 
-// Mock sessionStorage
-Object.defineProperty(window, 'sessionStorage', {
-  value: {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-  },
-  writable: true,
-})
-
-// Mock fetch
-global.fetch = vi.fn()
-
-// Mock IntersectionObserver for lazy loading tests
+// Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }))
+
+// Mock console methods for cleaner test output
+global.console = {
+  ...console,
+  error: vi.fn(),
+  warn: vi.fn(),
+}
