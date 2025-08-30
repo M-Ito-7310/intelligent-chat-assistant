@@ -1,0 +1,298 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "close": "閉じる",
+    "search": "検索",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "more": "その他",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "login": "ログイン",
+    "register": "登録",
+    "status": "ステータス",
+    "browse": "ファイルを選択"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "chat": "チャット",
+    "documents": "ドキュメント",
+    "profile": "プロフィール",
+    "admin": "管理"
+  },
+  "auth": {
+    "login": {
+      "title": "ログイン",
+      "welcomeBack": "お帰りなさい！アカウントにサインインしてください。",
+      "email": "メールアドレス",
+      "password": "パスワード", 
+      "emailPlaceholder": "メールアドレスを入力",
+      "passwordPlaceholder": "パスワードを入力",
+      "rememberMe": "ログイン状態を保持する",
+      "forgotPassword": "パスワードを忘れましたか？",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signUp": "新規登録",
+      "signInButton": "ログイン",
+      "createAccount": "新しいアカウントを作成",
+      "signInWith": "または次の方法でログイン",
+      "errors": {
+        "invalidCredentials": "メールアドレスまたはパスワードが正しくありません",
+        "serverError": "サーバーエラーが発生しました。再度お試しください。",
+        "requiredFields": "必須項目をすべて入力してください"
+      }
+    },
+    "register": {
+      "title": "アカウント作成",
+      "name": "お名前",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "confirmPassword": "パスワード確認",
+      "passwordStrength": "パスワード強度",
+      "agreeToTerms": "{termsLink}と{privacyLink}に同意します",
+      "termsOfService": "利用規約",
+      "privacyPolicy": "プライバシーポリシー",
+      "createAccount": "アカウント作成",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "signIn": "ログイン",
+      "errors": {
+        "passwordMismatch": "パスワードが一致しません",
+        "emailExists": "このメールアドレスは既に登録されています",
+        "weakPassword": "パスワードは8文字以上で設定してください",
+        "invalidEmail": "有効なメールアドレスを入力してください"
+      }
+    },
+    "profile": {
+      "title": "プロフィール設定",
+      "personalInfo": "個人情報",
+      "preferences": "設定",
+      "security": "セキュリティ",
+      "updateProfile": "プロフィール更新",
+      "changePassword": "パスワード変更",
+      "currentPassword": "現在のパスワード",
+      "newPassword": "新しいパスワード",
+      "confirmNewPassword": "新しいパスワード確認"
+    }
+  },
+  "chat": {
+    "title": "AIチャットアシスタント",
+    "newConversation": "新しい会話",
+    "conversationHistory": "会話履歴",
+    "noConversations": "まだ会話がありません",
+    "sendMessageToStart": "メッセージを送信してAIとのチャットを開始してください",
+    "typing": "AIが入力中...",
+    "placeholders": {
+      "typeMessage": "メッセージを入力... (Enterで送信、Shift+Enterで改行)",
+      "conversationTitle": "会話タイトルを入力"
+    },
+    "actions": {
+      "send": "送信",
+      "regenerate": "再生成",
+      "copy": "コピー",
+      "delete": "削除",
+      "export": "エクスポート",
+      "share": "共有",
+      "archive": "アーカイブ",
+      "rename": "名前変更"
+    },
+    "settings": {
+      "aiProvider": "AIプロバイダー",
+      "model": "モデル",
+      "temperature": "創造性",
+      "maxTokens": "最大応答長",
+      "enableRAG": "ドキュメント知識を使用",
+      "streamingMode": "ストリーミング応答"
+    },
+    "export": {
+      "title": "会話のエクスポート",
+      "formats": {
+        "json": "JSON形式",
+        "pdf": "PDFドキュメント",
+        "csv": "CSVスプレッドシート"
+      },
+      "options": {
+        "includeMetadata": "メタデータを含める",
+        "includeTimestamps": "タイムスタンプを含める"
+      }
+    },
+    "errors": {
+      "failedToSend": "メッセージの送信に失敗しました",
+      "failedToLoad": "会話の読み込みに失敗しました",
+      "connectionError": "接続エラーが発生しました。再度お試しください。",
+      "rateLimited": "リクエストが多すぎます。しばらくお待ちください。"
+    },
+    "usage": {
+      "tokensUsed": "使用トークン",
+      "messagesThisMonth": "今月のメッセージ数",
+      "quotaRemaining": "残りクォータ"
+    }
+  },
+  "documents": {
+    "title": "ドキュメントライブラリ",
+    "subtitle": "AI搭載の会話用にドキュメントをアップロードして管理します",
+    "upload": "ドキュメントアップロード",
+    "uploadFirst": "最初のドキュメントをアップロード",
+    "uploading": "アップロード中...",
+    "processing": "処理中...",
+    "processed": "処理完了",
+    "failed": "処理失敗",
+    "totalDocuments": "総ドキュメント数",
+    "dragAndDrop": "ドキュメントをここにドラッグ&ドロップするか、",
+    "noDocuments": "まだドキュメントがアップロードされていません",
+    "uploadInstructions": "最初のドキュメントをアップロードしてAI会話を始めましょう",
+    "supportedFormats": "PDF、TXT、DOCX、MD対応（最大10MB）",
+    "maxFileSize": "最大ファイルサイズ: {size}MB",
+    "actions": {
+      "view": "表示",
+      "download": "ダウンロード",
+      "delete": "削除",
+      "reprocess": "再処理"
+    },
+    "details": {
+      "title": "ドキュメント詳細",
+      "basicInfo": "基本情報",
+      "fileName": "ファイル名",
+      "fileSize": "ファイルサイズ",
+      "uploadDate": "アップロード日",
+      "processingStatus": "ステータス",
+      "chunks": "チャンク",
+      "lastProcessed": "最終処理日",
+      "processingResults": "処理結果",
+      "chunksCreated": "作成されたチャンク数",
+      "processedAt": "処理日時"
+    },
+    "search": {
+      "placeholder": "ドキュメントを検索...",
+      "results": "{count}件の結果が見つかりました",
+      "noResults": "ドキュメントが見つかりません"
+    },
+    "errors": {
+      "uploadFailed": "アップロードに失敗しました",
+      "unsupportedFormat": "サポートされていないファイル形式です",
+      "fileTooLarge": "ファイルサイズが大きすぎます",
+      "processingFailed": "処理に失敗しました。ドキュメントの再処理を試してください。"
+    },
+    "filters": {
+      "allStatus": "すべてのステータス"
+    }
+  },
+  "admin": {
+    "title": "システム管理",
+    "dashboard": "ダッシュボード",
+    "users": "ユーザー管理",
+    "system": "システムメトリクス",
+    "settings": "システム設定",
+    "metrics": {
+      "activeUsers": "アクティブユーザー",
+      "totalConversations": "総会話数",
+      "totalMessages": "総メッセージ数",
+      "systemUptime": "システム稼働時間",
+      "memoryUsage": "メモリ使用量",
+      "diskUsage": "ディスク使用量",
+      "apiRequests": "今日のAPIリクエスト",
+      "cpuUsage": "CPU使用率"
+    },
+    "users": {
+      "totalUsers": "総ユーザー数",
+      "activeToday": "今日のアクティブ",
+      "newThisWeek": "今週の新規",
+      "actions": {
+        "viewProfile": "プロフィール表示",
+        "suspend": "停止",
+        "activate": "有効化",
+        "resetPassword": "パスワードリセット"
+      }
+    },
+    "cache": {
+      "title": "キャッシュパフォーマンス",
+      "cachedKeys": "キャッシュ済みキー数",
+      "unavailable": "キャッシュサービスが利用できません"
+    },
+    "system": {
+      "resources": "システムリソース"
+    },
+    "status": {
+      "active": "アクティブ"
+    },
+    "quickActions": {
+      "title": "クイックアクション",
+      "clearCache": "キャッシュクリア",
+      "cleanupExports": "古いエクスポートを削除",
+      "downloadLogs": "システムログダウンロード"
+    },
+    "recentActivity": "最近のアクティビティ",
+    "noRecentActivity": "最近のアクティビティはありません"
+  },
+  "settings": {
+    "title": "設定",
+    "general": "一般",
+    "appearance": "外観",
+    "language": "言語",
+    "notifications": "通知",
+    "privacy": "プライバシー",
+    "theme": {
+      "title": "テーマ",
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "自動"
+    },
+    "language": {
+      "title": "言語",
+      "current": "現在の言語",
+      "available": "利用可能な言語"
+    },
+    "notifications": {
+      "email": "メール通知",
+      "push": "プッシュ通知",
+      "sound": "サウンド通知"
+    }
+  },
+  "errors": {
+    "generic": "問題が発生しました。再度お試しください。",
+    "network": "ネットワークエラーです。接続を確認してください。",
+    "unauthorized": "このリソースへのアクセス権限がありません。",
+    "forbidden": "アクセスが拒否されました。",
+    "notFound": "要求されたリソースが見つかりません。",
+    "serverError": "内部サーバーエラーです。後ほど再度お試しください。",
+    "validation": "入力内容を確認して再度お試しください。"
+  },
+  "home": {
+    "title": "AIチャットボット",
+    "subtitle": "ドキュメント理解機能を備えたインテリジェントな会話",
+    "startChat": "チャットを開始",
+    "manageDocuments": "ドキュメント管理",
+    "features": {
+      "chat": {
+        "title": "インテリジェントチャット",
+        "description": "AIアシスタントと自然な会話を楽しめます"
+      },
+      "documents": {
+        "title": "ドキュメント理解",
+        "description": "ドキュメントをアップロードして内容について質問できます"
+      },
+      "search": {
+        "title": "スマート検索",
+        "description": "セマンティック検索を使用して関連情報を素早く見つけます"
+      }
+    }
+  },
+  "demo": {
+    "title": "デモアカウント",
+    "description": "現在、AIチャットボットをデモモードで使用しています。",
+    "useCredentials": "以下のデモ認証情報をお使いいただけます：",
+    "limitations": "デモモードの制限:",
+    "noApiCalls": "AIサービスへの実際のAPI呼び出しなし",
+    "limitedFeatures": "利用可能な機能が制限されています",
+    "noDataPersistence": "データは保存されません",
+    "getStarted": "すべての機能を使用するには、APIキーを設定してください。",
+    "regularUser": "一般ユーザー",
+    "adminUser": "管理者"
+  }
+}

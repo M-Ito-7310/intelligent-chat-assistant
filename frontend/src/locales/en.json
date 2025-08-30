@@ -1,0 +1,298 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "more": "More",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "status": "Status",
+    "browse": "browse files"
+  },
+  "navigation": {
+    "home": "Home",
+    "chat": "Chat",
+    "documents": "Documents",
+    "profile": "Profile",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "welcomeBack": "Welcome back! Please sign in to your account.",
+      "email": "Email",
+      "password": "Password",
+      "emailPlaceholder": "Enter your email",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "signInButton": "Sign In",
+      "createAccount": "Create a new account",
+      "signInWith": "Or sign in with",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "serverError": "Server error. Please try again.",
+        "requiredFields": "Please fill in all required fields"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordStrength": "Password strength",
+      "agreeToTerms": "I agree to the {termsLink} and {privacyLink}",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "createAccount": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "emailExists": "This email is already registered",
+        "weakPassword": "Password must be at least 8 characters long",
+        "invalidEmail": "Please enter a valid email address"
+      }
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "personalInfo": "Personal Information",
+      "preferences": "Preferences",
+      "security": "Security",
+      "updateProfile": "Update Profile",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password"
+    }
+  },
+  "chat": {
+    "title": "AI Chat Assistant",
+    "newConversation": "New Conversation",
+    "conversationHistory": "Conversation History",
+    "noConversations": "No conversations yet",
+    "sendMessageToStart": "Send a message to begin chatting with AI",
+    "typing": "AI is typing...",
+    "placeholders": {
+      "typeMessage": "Type your message... (Enter to send, Shift+Enter for new line)",
+      "conversationTitle": "Enter conversation title"
+    },
+    "actions": {
+      "send": "Send",
+      "regenerate": "Regenerate",
+      "copy": "Copy",
+      "delete": "Delete",
+      "export": "Export",
+      "share": "Share",
+      "archive": "Archive",
+      "rename": "Rename"
+    },
+    "settings": {
+      "aiProvider": "AI Provider",
+      "model": "Model",
+      "temperature": "Creativity",
+      "maxTokens": "Max Response Length",
+      "enableRAG": "Use Document Knowledge",
+      "streamingMode": "Streaming Responses"
+    },
+    "export": {
+      "title": "Export Conversation",
+      "formats": {
+        "json": "JSON Format",
+        "pdf": "PDF Document",
+        "csv": "CSV Spreadsheet"
+      },
+      "options": {
+        "includeMetadata": "Include metadata",
+        "includeTimestamps": "Include timestamps"
+      }
+    },
+    "errors": {
+      "failedToSend": "Failed to send message",
+      "failedToLoad": "Failed to load conversation",
+      "connectionError": "Connection error. Please try again.",
+      "rateLimited": "Too many requests. Please wait a moment."
+    },
+    "usage": {
+      "tokensUsed": "Tokens used",
+      "messagesThisMonth": "Messages this month",
+      "quotaRemaining": "Quota remaining"
+    }
+  },
+  "documents": {
+    "title": "Document Library",
+    "subtitle": "Upload and manage documents for AI-powered conversations",
+    "upload": "Upload Documents",
+    "uploadFirst": "Upload Your First Document",
+    "uploading": "Uploading...",
+    "processing": "Processing...",
+    "processed": "Processed",
+    "failed": "Failed",
+    "totalDocuments": "Total Documents",
+    "dragAndDrop": "Drag and drop your document here, or",
+    "noDocuments": "No documents uploaded yet",
+    "uploadInstructions": "Upload your first document to get started with AI-powered conversations",
+    "supportedFormats": "PDF, TXT, DOCX, MD up to 10MB",
+    "maxFileSize": "Max file size: {size}MB",
+    "actions": {
+      "view": "View",
+      "download": "Download",
+      "delete": "Delete",
+      "reprocess": "Reprocess"
+    },
+    "details": {
+      "title": "Document Details",
+      "basicInfo": "Basic Information",
+      "fileName": "File Name",
+      "fileSize": "File Size",
+      "uploadDate": "Upload Date",
+      "processingStatus": "Status",
+      "chunks": "chunks",
+      "lastProcessed": "Last Processed",
+      "processingResults": "Processing Results",
+      "chunksCreated": "Chunks Created",
+      "processedAt": "Processed At"
+    },
+    "search": {
+      "placeholder": "Search documents...",
+      "results": "{count} results found",
+      "noResults": "No Documents Found"
+    },
+    "errors": {
+      "uploadFailed": "Upload failed",
+      "unsupportedFormat": "Unsupported file format",
+      "fileTooLarge": "File is too large",
+      "processingFailed": "Processing failed. Try reprocessing the document."
+    },
+    "filters": {
+      "allStatus": "All Status"
+    }
+  },
+  "admin": {
+    "title": "System Administration",
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "system": "System Metrics",
+    "settings": "System Settings",
+    "metrics": {
+      "activeUsers": "Active Users",
+      "totalConversations": "Total Conversations",
+      "totalMessages": "Total Messages",
+      "systemUptime": "System Uptime",
+      "memoryUsage": "Memory Usage",
+      "diskUsage": "Disk Usage",
+      "apiRequests": "API Requests Today",
+      "cpuUsage": "CPU Usage"
+    },
+    "users": {
+      "totalUsers": "Total Users",
+      "activeToday": "Active Today",
+      "newThisWeek": "New This Week",
+      "actions": {
+        "viewProfile": "View Profile",
+        "suspend": "Suspend",
+        "activate": "Activate",
+        "resetPassword": "Reset Password"
+      }
+    },
+    "cache": {
+      "title": "Cache Performance",
+      "cachedKeys": "Cached Keys",
+      "unavailable": "Cache service unavailable"
+    },
+    "system": {
+      "resources": "System Resources"
+    },
+    "status": {
+      "active": "Active"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "clearCache": "Clear Cache",
+      "cleanupExports": "Cleanup Old Exports",
+      "downloadLogs": "Download System Logs"
+    },
+    "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto"
+    },
+    "language": {
+      "title": "Language",
+      "current": "Current language",
+      "available": "Available languages"
+    },
+    "notifications": {
+      "email": "Email notifications",
+      "push": "Push notifications",
+      "sound": "Sound notifications"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to access this resource.",
+    "forbidden": "Access denied.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Internal server error. Please try again later.",
+    "validation": "Please check your input and try again."
+  },
+  "home": {
+    "title": "AI Chatbot",
+    "subtitle": "Intelligent conversations with document understanding",
+    "startChat": "Start Chatting",
+    "manageDocuments": "Manage Documents",
+    "features": {
+      "chat": {
+        "title": "Intelligent Chat",
+        "description": "Have natural conversations with our AI assistant"
+      },
+      "documents": {
+        "title": "Document Understanding", 
+        "description": "Upload documents and ask questions about their content"
+      },
+      "search": {
+        "title": "Smart Search",
+        "description": "Find relevant information quickly using semantic search"
+      }
+    }
+  },
+  "demo": {
+    "title": "Demo Account",
+    "description": "You are currently using the AI Chatbot in demo mode.",
+    "useCredentials": "You can use the following demo credentials:",
+    "limitations": "Demo limitations:",
+    "noApiCalls": "No actual API calls to AI services",
+    "limitedFeatures": "Limited features available",
+    "noDataPersistence": "Data is not persisted",
+    "getStarted": "To get started with full features, please configure your API keys.",
+    "regularUser": "Regular User",
+    "adminUser": "Admin User"
+  }
+}

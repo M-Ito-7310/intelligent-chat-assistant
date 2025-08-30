@@ -1,0 +1,210 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Run Frontend Linting
+      working-directory: ./frontend
+      run: npm run lint
+    
+    - name: Run Frontend Type Check
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: npm run test:run
+      
+    - name: Upload Frontend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./frontend/coverage
+        flags: frontend
+        name: frontend-coverage
+
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_chatbot_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install Backend Dependencies
+      working-directory: ./backend
+      run: npm ci
+    
+    - name: Run Backend Linting
+      working-directory: ./backend
+      run: npm run lint
+    
+    - name: Run Backend Tests
+      working-directory: ./backend
+      run: npm test
+      env:
+        NODE_ENV: test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_chatbot_test
+        REDIS_URL: redis://localhost:6379/1
+        JWT_SECRET: test-jwt-secret-for-github-actions
+        OPENAI_API_KEY: fake-openai-key-for-tests
+        
+    - name: Upload Backend Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./backend/coverage
+        flags: backend
+        name: backend-coverage
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [test-frontend, test-backend]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Frontend Security Audit
+      working-directory: ./frontend
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Run Backend Security Audit
+      working-directory: ./backend
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [test-frontend, test-backend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Dependencies
+      run: |
+        cd frontend && npm ci
+        cd ../backend && npm ci
+    
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Upload Frontend Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-dist
+        path: frontend/dist/
+        retention-days: 30
+
+  performance-test:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install Dependencies
+      run: |
+        cd backend && npm ci
+        npm install -g lighthouse artillery
+    
+    - name: Start Backend Server
+      working-directory: ./backend
+      run: npm start &
+      env:
+        NODE_ENV: production
+        PORT: 3000
+        DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        REDIS_URL: ${{ secrets.TEST_REDIS_URL }}
+        JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+    
+    - name: Wait for Server
+      run: sleep 10
+    
+    - name: Run Performance Tests
+      run: |
+        artillery quick --count 10 --num 5 http://localhost:3000/api/health
+        lighthouse http://localhost:3000 --output json --output-path ./lighthouse-report.json --chrome-flags="--headless"
+    
+    - name: Upload Performance Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: |
+          lighthouse-report.json
+          artillery-report.json

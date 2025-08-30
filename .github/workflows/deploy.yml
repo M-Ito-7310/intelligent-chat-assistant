@@ -1,0 +1,142 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install Dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        VITE_APP_ENV: production
+    
+    - name: Deploy to Vercel
+      uses: vercel/action@v1
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./frontend
+        vercel-args: '--prod'
+
+  deploy-backend:
+    name: Deploy Backend to Railway
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install Dependencies
+      working-directory: ./backend
+      run: npm ci --only=production
+    
+    - name: Run Database Migrations
+      working-directory: ./backend
+      run: npm run migrate
+      env:
+        DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+    
+    - name: Deploy to Railway
+      uses: railway-org/action@v1
+      with:
+        service: ai-chatbot-backend
+        token: ${{ secrets.RAILWAY_TOKEN }}
+        environment: production
+      env:
+        DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        REDIS_URL: ${{ secrets.PROD_REDIS_URL }}
+        JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+        NODE_ENV: production
+
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-frontend, deploy-backend]
+    
+    steps:
+    - name: Check Backend Health
+      run: |
+        for i in {1..10}; do
+          if curl -f ${{ secrets.API_BASE_URL }}/health; then
+            echo "Backend is healthy"
+            break
+          fi
+          echo "Attempt $i failed, retrying in 30s..."
+          sleep 30
+        done
+    
+    - name: Check Frontend Health  
+      run: |
+        for i in {1..10}; do
+          if curl -f ${{ secrets.FRONTEND_URL }}; then
+            echo "Frontend is healthy"
+            break
+          fi
+          echo "Attempt $i failed, retrying in 30s..."
+          sleep 30
+        done
+    
+    - name: Run Smoke Tests
+      run: |
+        # Test API endpoints
+        curl -f "${{ secrets.API_BASE_URL }}/api/health"
+        curl -f "${{ secrets.API_BASE_URL }}/api/auth/demo"
+        
+        # Test frontend routes
+        curl -f "${{ secrets.FRONTEND_URL }}"
+        curl -f "${{ secrets.FRONTEND_URL }}/login"
+        curl -f "${{ secrets.FRONTEND_URL }}/chat"
+
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [health-check]
+    if: always()
+    
+    steps:
+    - name: Send Success Notification
+      if: needs.health-check.result == 'success'
+      run: |
+        echo "✅ Deployment successful! 🚀"
+        echo "Frontend: ${{ secrets.FRONTEND_URL }}"
+        echo "Backend: ${{ secrets.API_BASE_URL }}"
+    
+    - name: Send Failure Notification
+      if: needs.health-check.result == 'failure'
+      run: |
+        echo "❌ Deployment failed! 🚨"
+        echo "Please check the logs and fix any issues."
+        exit 1
