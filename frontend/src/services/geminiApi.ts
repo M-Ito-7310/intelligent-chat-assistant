@@ -1,12 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const API_KEY = 'AIzaSyCBHbNzmwYtEsG049uGc_lbjeOo0igTNxc'
+// Get API key from environment variables
+const API_KEY = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY
+
+if (!API_KEY) {
+  console.warn('VITE_GOOGLE_GEMINI_API_KEY not found in environment variables. Demo mode will not work.')
+}
 
 // Initialize Gemini API
-const genAI = new GoogleGenerativeAI(API_KEY)
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null
 
 // Get Gemini model
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' }) || null
 
 export interface GeminiMessage {
   role: 'user' | 'model'
@@ -15,6 +20,10 @@ export interface GeminiMessage {
 
 export class GeminiApiService {
   async generateResponse(messages: GeminiMessage[]): Promise<string> {
+    if (!model) {
+      throw new Error('Gemini API not configured. Please set VITE_GOOGLE_GEMINI_API_KEY environment variable.')
+    }
+    
     try {
       // Create chat session with history
       const chat = model.startChat({
@@ -40,6 +49,10 @@ export class GeminiApiService {
   }
 
   async generateSingleResponse(prompt: string): Promise<string> {
+    if (!model) {
+      throw new Error('Gemini API not configured. Please set VITE_GOOGLE_GEMINI_API_KEY environment variable.')
+    }
+    
     try {
       const result = await model.generateContent(prompt)
       const response = await result.response
@@ -52,6 +65,10 @@ export class GeminiApiService {
 
   // Generate a conversation title based on the first message
   async generateConversationTitle(firstMessage: string): Promise<string> {
+    if (!model) {
+      return 'New Conversation' // Fallback if API not configured
+    }
+    
     try {
       const prompt = `Based on this user message, generate a short, descriptive title for the conversation (max 5 words): "${firstMessage}"`
       const result = await model.generateContent(prompt)
