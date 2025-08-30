@@ -7,7 +7,7 @@
           {{ $t('auth.profile.title') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400 mt-2">
-          Manage your account settings and preferences
+          {{ $t('auth.profile.subtitle') }}
         </p>
       </div>
 
@@ -21,7 +21,7 @@
             </div>
             <button
               class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              title="Upload photo"
+:title="$t('auth.profile.uploadPhoto')"
             >
               <Camera class="w-4 h-4" />
             </button>
@@ -36,7 +36,7 @@
               {{ user?.email }}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Member since {{ formatDate(user?.created_at) }}
+              {{ $t('auth.profile.memberSince') }} {{ formatDate(user?.created_at) }}
             </p>
           </div>
 
@@ -132,7 +132,7 @@
                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Loader2 v-if="isUpdatingProfile" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-                  {{ isUpdatingProfile ? 'Saving...' : 'Save Changes' }}
+                  {{ isUpdatingProfile ? $t('auth.profile.saving') : $t('auth.profile.saveChanges') }}
                 </button>
               </div>
             </form>
@@ -141,14 +141,14 @@
           <!-- Security Tab -->
           <div v-if="activeTab === 'security'" class="space-y-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Change Password
+              {{ $t('auth.profile.changePassword.title') }}
             </h3>
             
             <form @submit.prevent="changePassword" class="space-y-6">
               <!-- Current Password -->
               <div>
                 <label for="currentPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Current Password
+                  {{ $t('auth.profile.changePassword.current') }}
                 </label>
                 <div class="relative max-w-md">
                   <input
@@ -176,7 +176,7 @@
               <!-- New Password -->
               <div>
                 <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  New Password
+                  {{ $t('auth.profile.changePassword.new') }}
                 </label>
                 <div class="relative max-w-md">
                   <input
@@ -198,7 +198,7 @@
                 </div>
                 <!-- Password strength indicator -->
                 <div v-if="passwordForm.newPassword" class="mt-2">
-                  <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Password strength:</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">{{ $t('auth.profile.changePassword.strength') }}</div>
                   <div class="flex space-x-1 max-w-md">
                     <div :class="['h-1 w-1/4 rounded', getPasswordStrengthColor(0)]"></div>
                     <div :class="['h-1 w-1/4 rounded', getPasswordStrengthColor(1)]"></div>
@@ -214,7 +214,7 @@
               <!-- Confirm New Password -->
               <div>
                 <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm New Password
+                  {{ $t('auth.profile.changePassword.confirm') }}
                 </label>
                 <div class="relative max-w-md">
                   <input
@@ -247,7 +247,7 @@
                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Loader2 v-if="isChangingPassword" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-                  {{ isChangingPassword ? 'Changing Password...' : 'Change Password' }}
+                  {{ isChangingPassword ? $t('auth.profile.changePassword.changing') : $t('auth.profile.changePassword.button') }}
                 </button>
               </div>
             </form>
@@ -256,14 +256,14 @@
           <!-- Preferences Tab -->
           <div v-if="activeTab === 'preferences'" class="space-y-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Preferences
+              {{ $t('auth.profile.preferences.title') }}
             </h3>
             
             <div class="space-y-6">
               <!-- Theme -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Theme Preference
+                  {{ $t('auth.profile.preferences.theme') }}
                 </label>
                 <div class="flex space-x-4">
                   <label class="flex items-center">
@@ -273,7 +273,7 @@
                       value="light"
                       class="form-radio h-4 w-4 text-blue-600"
                     />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Light</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('auth.profile.theme.light') }}</span>
                   </label>
                   <label class="flex items-center">
                     <input
@@ -282,7 +282,7 @@
                       value="dark"
                       class="form-radio h-4 w-4 text-blue-600"
                     />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Dark</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('auth.profile.theme.dark') }}</span>
                   </label>
                   <label class="flex items-center">
                     <input
@@ -291,7 +291,7 @@
                       value="system"
                       class="form-radio h-4 w-4 text-blue-600"
                     />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">System</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('auth.profile.theme.system') }}</span>
                   </label>
                 </div>
               </div>
@@ -299,25 +299,25 @@
               <!-- Language -->
               <div>
                 <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Language
+                  {{ $t('auth.profile.preferences.language') }}
                 </label>
                 <select
                   id="language"
                   v-model="preferences.language"
                   class="max-w-xs px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
-                  <option value="en">English</option>
-                  <option value="ja">Japanese</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
+                  <option value="en">{{ $t('auth.profile.languages.en') }}</option>
+                  <option value="ja">{{ $t('auth.profile.languages.ja') }}</option>
+                  <option value="es">{{ $t('auth.profile.languages.es') }}</option>
+                  <option value="fr">{{ $t('auth.profile.languages.fr') }}</option>
+                  <option value="de">{{ $t('auth.profile.languages.de') }}</option>
                 </select>
               </div>
 
               <!-- Notifications -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Notifications
+                  {{ $t('auth.profile.preferences.notifications') }}
                 </label>
                 <div class="space-y-2">
                   <label class="flex items-center">
@@ -326,7 +326,7 @@
                       type="checkbox"
                       class="form-checkbox h-4 w-4 text-blue-600 rounded"
                     />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Email notifications</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('auth.profile.preferences.emailNotifications') }}</span>
                   </label>
                   <label class="flex items-center">
                     <input
@@ -334,7 +334,7 @@
                       type="checkbox"
                       class="form-checkbox h-4 w-4 text-blue-600 rounded"
                     />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Push notifications</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('auth.profile.preferences.pushNotifications') }}</span>
                   </label>
                 </div>
               </div>
@@ -347,7 +347,7 @@
                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Loader2 v-if="isSavingPreferences" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-                  {{ isSavingPreferences ? 'Saving...' : 'Save Preferences' }}
+                  {{ isSavingPreferences ? $t('auth.profile.saving') : $t('auth.profile.preferences.save') }}
                 </button>
               </div>
             </div>
@@ -356,17 +356,17 @@
           <!-- Account Tab -->
           <div v-if="activeTab === 'account'" class="space-y-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Account Management
+              {{ $t('auth.profile.account.title') }}
             </h3>
             
             <div class="space-y-6">
               <!-- Export Data -->
               <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
                 <h4 class="font-medium text-gray-900 dark:text-white mb-2">
-                  Export Your Data
+                  {{ $t('auth.profile.account.export.title') }}
                 </h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Download a copy of your conversations and documents.
+                  {{ $t('auth.profile.account.export.description') }}
                 </p>
                 <button
                   @click="exportData"
@@ -375,24 +375,24 @@
                 >
                   <Download v-if="!isExportingData" class="w-4 h-4 mr-2" />
                   <Loader2 v-else class="animate-spin w-4 h-4 mr-2" />
-                  {{ isExportingData ? 'Exporting...' : 'Export Data' }}
+                  {{ isExportingData ? $t('auth.profile.account.export.exporting') : $t('auth.profile.account.export.button') }}
                 </button>
               </div>
 
               <!-- Delete Account -->
               <div class="border border-red-200 dark:border-red-800 rounded-lg p-6">
                 <h4 class="font-medium text-red-900 dark:text-red-200 mb-2">
-                  Delete Account
+                  {{ $t('auth.profile.account.delete.title') }}
                 </h4>
                 <p class="text-sm text-red-600 dark:text-red-400 mb-4">
-                  Permanently delete your account and all associated data. This action cannot be undone.
+                  {{ $t('auth.profile.account.delete.description') }}
                 </p>
                 <button
                   @click="showDeleteConfirm = true"
                   class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
                 >
                   <Trash2 class="w-4 h-4 mr-2" />
-                  Delete Account
+                  {{ $t('auth.profile.account.delete.button') }}
                 </button>
               </div>
             </div>
@@ -420,7 +420,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Confirm Account Deletion
+              {{ $t('auth.profile.account.delete.confirm.title') }}
             </h3>
             <button
               @click="showDeleteConfirm = false"
@@ -432,17 +432,17 @@
 
           <div class="space-y-4">
             <p class="text-gray-600 dark:text-gray-400">
-              This will permanently delete your account and all associated data, including conversations and documents. This action cannot be undone.
+              {{ $t('auth.profile.account.delete.confirm.description') }}
             </p>
             
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Type <strong>DELETE</strong> to confirm:
+              {{ $t('auth.profile.account.delete.confirm.instruction') }}
             </p>
             
             <input
               v-model="deleteConfirmText"
               type="text"
-              placeholder="Type DELETE to confirm"
+:placeholder="$t('auth.profile.account.delete.confirm.placeholder')"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
 
@@ -451,7 +451,7 @@
                 @click="showDeleteConfirm = false"
                 class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                Cancel
+                {{ $t('common.cancel') }}
               </button>
               <button
                 @click="deleteAccount"
@@ -459,7 +459,7 @@
                 class="flex-1 inline-flex justify-center items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Loader2 v-if="isDeletingAccount" class="animate-spin -ml-1 mr-2 h-4 w-4" />
-                {{ isDeletingAccount ? 'Deleting...' : 'Delete Account' }}
+                {{ isDeletingAccount ? $t('auth.profile.account.delete.confirm.deleting') : $t('auth.profile.account.delete.button') }}
               </button>
             </div>
           </div>
@@ -472,6 +472,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import { 
@@ -491,6 +492,7 @@ import {
 } from 'lucide-vue-next'
 
 // Stores
+const { t } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const router = useRouter()
@@ -538,12 +540,12 @@ const successMessage = ref('')
 const errorMessage = ref('')
 
 // Tabs configuration
-const tabs = [
-  { id: 'personal', label: 'Personal', icon: User },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'preferences', label: 'Preferences', icon: Settings },
-  { id: 'account', label: 'Account', icon: Bell }
-]
+const tabs = computed(() => [
+  { id: 'personal', label: t('auth.profile.personalInfo'), icon: User },
+  { id: 'security', label: t('auth.profile.security'), icon: Shield },
+  { id: 'preferences', label: t('auth.profile.preferences.title'), icon: Settings },
+  { id: 'account', label: t('auth.profile.account.title'), icon: Bell }
+])
 
 // Computed
 const user = computed(() => authStore.user)

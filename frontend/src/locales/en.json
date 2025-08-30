@@ -71,10 +71,67 @@
     },
     "profile": {
       "title": "Profile Settings",
+      "subtitle": "Manage your account settings and preferences",
       "personalInfo": "Personal Information",
       "preferences": "Preferences",
       "security": "Security",
+      "account": "Account",
       "updateProfile": "Update Profile",
+      "memberSince": "Member since",
+      "uploadPhoto": "Upload photo",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "changePassword": {
+        "title": "Change Password",
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "strength": "Password strength:",
+        "button": "Change Password",
+        "changing": "Changing Password..."
+      },
+      "preferences": {
+        "title": "Preferences",
+        "theme": "Theme Preference",
+        "language": "Language",
+        "notifications": "Notifications",
+        "emailNotifications": "Email notifications",
+        "pushNotifications": "Push notifications",
+        "save": "Save Preferences"
+      },
+      "account": {
+        "title": "Account Management",
+        "export": {
+          "title": "Export Your Data",
+          "description": "Download a copy of your conversations and documents.",
+          "button": "Export Data",
+          "exporting": "Exporting..."
+        },
+        "delete": {
+          "title": "Delete Account",
+          "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+          "button": "Delete Account",
+          "confirm": {
+            "title": "Confirm Account Deletion",
+            "description": "This will permanently delete your account and all associated data, including conversations and documents. This action cannot be undone.",
+            "instruction": "Type DELETE to confirm:",
+            "placeholder": "Type DELETE to confirm",
+            "deleting": "Deleting..."
+          }
+        }
+      },
+      "theme": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "languages": {
+        "en": "English",
+        "ja": "Japanese",
+        "es": "Spanish",
+        "fr": "French",
+        "de": "German"
+      },
       "changePassword": "Change Password",
       "currentPassword": "Current Password",
       "newPassword": "New Password",

@@ -71,14 +71,67 @@
     },
     "profile": {
       "title": "プロフィール設定",
+      "subtitle": "アカウント設定と設定を管理",
       "personalInfo": "個人情報",
       "preferences": "設定",
       "security": "セキュリティ",
+      "account": "アカウント",
       "updateProfile": "プロフィール更新",
-      "changePassword": "パスワード変更",
-      "currentPassword": "現在のパスワード",
-      "newPassword": "新しいパスワード",
-      "confirmNewPassword": "新しいパスワード確認"
+      "memberSince": "登録日",
+      "uploadPhoto": "写真をアップロード",
+      "saveChanges": "変更を保存",
+      "saving": "保存中...",
+      "changePassword": {
+        "title": "パスワード変更",
+        "current": "現在のパスワード",
+        "new": "新しいパスワード",
+        "confirm": "新しいパスワードを確認",
+        "strength": "パスワード強度:",
+        "button": "パスワードを変更",
+        "changing": "パスワード変更中..."
+      },
+      "preferences": {
+        "title": "設定",
+        "theme": "テーマ設定",
+        "language": "言語",
+        "notifications": "通知",
+        "emailNotifications": "メール通知",
+        "pushNotifications": "プッシュ通知",
+        "save": "設定を保存"
+      },
+      "account": {
+        "title": "アカウント管理",
+        "export": {
+          "title": "データをエクスポート",
+          "description": "会話とドキュメントのコピーをダウンロードします。",
+          "button": "データをエクスポート",
+          "exporting": "エクスポート中..."
+        },
+        "delete": {
+          "title": "アカウント削除",
+          "description": "アカウントと関連するすべてのデータを完全に削除します。この操作は取り消せません。",
+          "button": "アカウントを削除",
+          "confirm": {
+            "title": "アカウント削除の確認",
+            "description": "これにより、会話やドキュメントを含むアカウントと関連するすべてのデータが完全に削除されます。この操作は取り消せません。",
+            "instruction": "確認のため DELETE と入力してください：",
+            "placeholder": "確認のため DELETE と入力",
+            "deleting": "削除中..."
+          }
+        }
+      },
+      "theme": {
+        "light": "ライト",
+        "dark": "ダーク",
+        "system": "システム"
+      },
+      "languages": {
+        "en": "英語",
+        "ja": "日本語",
+        "es": "スペイン語",
+        "fr": "フランス語",
+        "de": "ドイツ語"
+      }
     }
   },
   "chat": {
